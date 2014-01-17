@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 
+#include "preprocessor.h"
+
 int main(int argc, char* argv[])
 {
 	FILE* fp;
@@ -24,6 +26,8 @@ int main(int argc, char* argv[])
 		return 2;
 	}
 	fclose(fp);
+	
+	printf("%s", preprocessFile(argv[1]));
 	
 	return 0;
 }
