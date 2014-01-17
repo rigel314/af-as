@@ -8,8 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "preprocessor.h"
+#include "common.h"
 
 char* preprocessFile(char* name)
 {
@@ -43,10 +45,26 @@ char* preprocessFile(char* name)
 	
 	buf[fSize] = '\0';
 	
+	// Remove comments.
 	for(int i = 0; i < strlen(buf); i++)
 	{
 		if(buf[i] == '#')
 			removeComment(buf, i);
+	}
+	
+	// Remove all leading whitespace.
+	for(int i = 0; i < strlen(buf)-1; i++)
+	{
+		bool changeFlag = true;
+		while(changeFlag)
+		{
+			changeFlag = false;
+			if(buf[i] == '\n' && (buf[i+1] == ' ' || buf[i+1] == '\t'))
+			{
+				changeFlag = true;
+				strShiftLeft(buf + i + 1);
+			}
+		}
 	}
 	
 	return buf;
