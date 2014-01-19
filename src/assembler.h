@@ -8,7 +8,9 @@
 #ifndef ASSEMBLER_H_
 #define ASSEMBLER_H_
 
-enum instArgType { argType_Bad, argType_Unused, argType_Immediate, argType_DerefImmediate, argType_Register, argType_DerefRegister, argType_Label, argType_DerefLabel };
+#define TargetDerefBit 0x10
+
+enum instArgType { argType_Unused, argType_Bad, argType_Immediate, argType_DerefImmediate, argType_Register, argType_DerefRegister, argType_Label, argType_DerefLabel };
 
 enum registers { reg_r0, reg_r1, reg_r2, reg_r3, NUM_REGISTERS, reg_pc, reg_sp, NUM_ALLREGISTERS, reg_immediate };
 

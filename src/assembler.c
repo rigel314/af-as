@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "assembler.h"
 #include "common.h"
@@ -101,7 +102,74 @@ int findLabel(char* name, struct lineinfo* lines, int len)
 
 void assemble(char* file, struct lineinfo* lines, int len)
 {
-	;
+	int addr = 0;
+	FILE* fp = fopen(file, "w");
+	if(!fp)
+		fp = stdout;
+	
+	for(int i=0; i<len; i++)
+	{
+		int inst;
+		uint16_t word = 0;
+		char target1 = -1;
+		char target2 = -1;
+		
+		if(lines[i].type == lineType_Error)
+			fprintf(stderr, "Line %d - Error!", lines[i].lineNum);
+		if(lines[i].type != lineType_Instruction)
+			continue;
+		
+		if(!addr)
+			addr = lines[i].address;
+		if(addr != lines[i].address)
+		{
+			for(; addr<lines[i].address; addr++)
+				writeInt8(fp, 0);
+		}
+		addr += lines[i].width;
+		
+		inst = lines[i].line.inst.instruction;
+		
+		word = instructionSet[inst].bitField << 10;
+		if(lines[i].line.inst.type1 == argType_DerefRegister || lines[i].line.inst.type1 == argType_Register)
+		{
+			target1 = regStrings[lines[i].line.inst.arg1.val].bitField;
+			if(lines[i].line.inst.type1 == argType_DerefRegister)
+				target1 |= TargetDerefBit;
+			word |= (target1 << 5);
+		}
+		else if(lines[i].line.inst.type1 == argType_DerefImmediate || lines[i].line.inst.type1 == argType_Immediate)
+		{
+			target1 = regStrings[reg_immediate].bitField;
+			if(lines[i].line.inst.type1 == argType_DerefImmediate)
+				target1 |= TargetDerefBit;
+			word |= (target1 << 5);
+		}
+		if(lines[i].line.inst.type2 == argType_DerefRegister || lines[i].line.inst.type2 == argType_Register)
+		{
+			target2 = regStrings[lines[i].line.inst.arg2.val].bitField;
+			if(lines[i].line.inst.type2 == argType_DerefRegister)
+				target2 |= TargetDerefBit;
+			word |= target2;
+		}
+		else if(lines[i].line.inst.type2 == argType_DerefImmediate || lines[i].line.inst.type2 == argType_Immediate)
+		{
+			target2 = regStrings[reg_immediate].bitField;
+			if(lines[i].line.inst.type2 == argType_DerefImmediate)
+				target2 |= TargetDerefBit;
+			word |= target2;
+		}
+		
+		writeInt16(fp, word);
+		
+		if((target1 | TargetDerefBit) == (regStrings[reg_immediate].bitField | TargetDerefBit))
+			writeInt16(fp, lines[i].line.inst.arg1.val);
+		if((target2 | TargetDerefBit) == (regStrings[reg_immediate].bitField | TargetDerefBit))
+			writeInt16(fp, lines[i].line.inst.arg1.val);
+	}
+	
+	if(fp != stdout)
+		fclose(fp);
 }
 
 
