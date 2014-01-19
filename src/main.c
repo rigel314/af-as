@@ -33,9 +33,11 @@ int main(int argc, char* argv[])
 	fclose(fp);
 	
 	preprocess = preprocessFile(argv[1]);
-	printf("%s", preprocess);
+	printf("%s\n\n", preprocess);
 	
 	numLines = structify(preprocess, &lines);
+	resolveLabels(lines, numLines);
+	assemble(lines, numLines);
 	
 	printf("\nStuff:%d\n", numLines);
 	
@@ -45,9 +47,43 @@ int main(int argc, char* argv[])
 		{
 			printf("%d", lines[i].lineNum);
 			if(lines[i].type == lineType_Label)
-				printf(" %s", lines[i].line.lbl.name);
+			{
+				printf(" %s: %#.4x", lines[i].line.lbl.name, lines[i].address);
+			}
+			else if(lines[i].type == lineType_Instruction)
+			{
+				switch(instructionSet[(int) lines[i].line.inst.instruction].numArgs)
+				{
+					case 0:
+						printf(" %s:", instructionSet[(int) lines[i].line.inst.instruction].mnumonic);
+						break;
+						
+					case 1:
+						if(lines[i].line.inst.type1 == argType_Immediate || lines[i].line.inst.type1 == argType_DerefImmediate)
+							printf(" %s: %d", instructionSet[(int) lines[i].line.inst.instruction].mnumonic, lines[i].line.inst.arg1);
+						else
+							printf(" %s: %s", instructionSet[(int) lines[i].line.inst.instruction].mnumonic, regStrings[(int) lines[i].line.inst.arg1].name);
+						break;
+						
+					case 2:
+						printf(" %s: ", instructionSet[(int) lines[i].line.inst.instruction].mnumonic);
+						
+						if(lines[i].line.inst.type1 == argType_Immediate || lines[i].line.inst.type1 == argType_DerefImmediate)
+							printf("%d, ", lines[i].line.inst.arg1);
+						else
+							printf("%s, ", regStrings[(int) lines[i].line.inst.arg1].name);
+						
+						if(lines[i].line.inst.type2 == argType_Immediate || lines[i].line.inst.type2 == argType_DerefImmediate)
+							printf("%d", lines[i].line.inst.arg2);
+						else
+							printf("%s", regStrings[(int) lines[i].line.inst.arg2].name);
+						break;
+				}
+			}
 			else
+			{
 				printf(" Error!");
+			}
 			printf("\n");
 		}
 	}
