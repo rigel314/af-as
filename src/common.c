@@ -8,6 +8,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
+
+void writeInt8(FILE* fp, uint8_t val)
+{
+	fprintf(fp, "%c", val);
+}
+void writeInt16(FILE* fp, uint16_t val)
+{
+	fprintf(fp, "%c%c", (val & 0xFF00) >> 8, val & 0x00FF);
+}
 
 void strnprint(char* str, int len)
 {
