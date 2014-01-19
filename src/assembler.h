@@ -83,7 +83,7 @@ extern const struct validRegs regStrings[NUM_ALLREGISTERS+2];
 
 void resolveLabels(struct lineinfo* lines, int len);
 int findLabel(char* name, struct lineinfo* lines, int len);
-void assemble(struct lineinfo* lines, int len);
+void assemble(char* file, struct lineinfo* lines, int len);
 int structify(char* source, struct lineinfo** lines);
 int getArgAndType(char* str, int len, union arg* val, char* type);
 int getInstruction(char* str, int len);

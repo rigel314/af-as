@@ -62,15 +62,25 @@ void resolveLabels(struct lineinfo* lines, int len)
 		
 		if(lines[i].line.inst.type1 == argType_Label || lines[i].line.inst.type1 == argType_DerefLabel)
 		{
+			char* arglbl = lines[i].line.inst.arg1.name;
+			
 			lines[i].line.inst.type1 = argType_Immediate | (0x01 & lines[i].line.inst.type1);
-			lines[i].line.inst.arg1.val = findLabel(lines[i].line.inst.arg1.name, lines, len);
+			lines[i].line.inst.arg1.val = findLabel(arglbl, lines, len);
+			
+			free(arglbl);
+			
 			if(lines[i].line.inst.arg1.val == -1)
 				lines[i].type = lineType_Error;
 		}
 		if(lines[i].line.inst.type2 == argType_Label || lines[i].line.inst.type2 == argType_DerefLabel)
 		{
+			char* arglbl = lines[i].line.inst.arg1.name;
+			
 			lines[i].line.inst.type2 = argType_Immediate | (0x01 & lines[i].line.inst.type2);
 			lines[i].line.inst.arg2.val = findLabel(lines[i].line.inst.arg2.name, lines, len);
+			
+			free(arglbl);
+			
 			if(lines[i].line.inst.arg2.val == -1)
 				lines[i].type = lineType_Error;
 		}
@@ -89,7 +99,7 @@ int findLabel(char* name, struct lineinfo* lines, int len)
 	return -1;
 }
 
-void assemble(struct lineinfo* lines, int len)
+void assemble(char* file, struct lineinfo* lines, int len)
 {
 	;
 }
