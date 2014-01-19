@@ -7,6 +7,19 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+
+void strnprint(char* str, int len)
+{
+	char* dbg;
+	
+	dbg = calloc(len+1, 1);
+	memcpy(dbg, str, len);
+	for(int i=0; i<len; i++)
+		if(str[i] == '\n')
+			str[i] = '\\';
+	printf("%s", dbg);
+}
 
 /**
  * int strchrCount(char* s, char c)
