@@ -55,7 +55,26 @@ const struct validRegs regStrings[NUM_ALLREGISTERS+2] =
 
 void resolveLabels(struct lineinfo* lines, int len)
 {
-	;
+	for(int i=0; i<len; i++)
+	{
+		if(lines[i].type != lineType_Instruction)
+			continue;
+		
+		if(lines[i].line.inst.type1 == argType_Label || lines[i].line.inst.type1 == argType_DerefLabel)
+		{
+			lines[i].line.inst.type1 = argType_Immediate | (0x01 & lines[i].line.inst.type1);
+			lines[i].line.inst.arg1.val = findLabel(lines[i].line.inst.arg1.name, lines, len);
+			if(lines[i].line.inst.arg1.val == -1)
+				lines[i].type = lineType_Error;
+		}
+		if(lines[i].line.inst.type2 == argType_Label || lines[i].line.inst.type2 == argType_DerefLabel)
+		{
+			lines[i].line.inst.type2 = argType_Immediate | (0x01 & lines[i].line.inst.type2);
+			lines[i].line.inst.arg2.val = findLabel(lines[i].line.inst.arg2.name, lines, len);
+			if(lines[i].line.inst.arg2.val == -1)
+				lines[i].type = lineType_Error;
+		}
+	}
 }
 int findLabel(char* name, struct lineinfo* lines, int len)
 {
@@ -210,7 +229,7 @@ int structify(char* source, struct lineinfo** lines)
 	return numLines;
 }
 
-int getArgAndType(char* str, int len, int* val, char* type)
+int getArgAndType(char* str, int len, union arg* val, char* type)
 {
 	int parenFlag = 0;
 	bool valFlag = false;
@@ -240,7 +259,7 @@ int getArgAndType(char* str, int len, int* val, char* type)
 			int j = 0;
 			int toklen = 0;
 			
-			for(int k=i; k<len && str[k]!=' ' && str[k]!='\t'; k++, toklen++);
+			for(int k=i; k<len && str[k]!=' ' && str[k]!='\t' && str[k]!=')'; k++, toklen++);
 			
 			while(strncasecmp(&str[i], regStrings[j].name, toklen) && ++j < NUM_ALLREGISTERS);
 			
@@ -251,10 +270,14 @@ int getArgAndType(char* str, int len, int* val, char* type)
 			{
 				valFlag = true;
 				retval = argType_Label;
-				for(i++; ((str[i] | ASCIIshiftBit) >= 'a' && (str[i] | ASCIIshiftBit) <= 'z') ||
+				
+				val->name = calloc(len+1, 1);
+				
+				for(int j=0; ((str[i] | ASCIIshiftBit) >= 'a' && (str[i] | ASCIIshiftBit) <= 'z') ||
 							 (str[i] >= '0' && str[i] <= '9' && i>0) ||
 							 (str[i] == '_')
-							 ; i++);
+							 ; i++)
+					val->name[j++] = str[i];
 				i--;
 			}
 		}
@@ -263,14 +286,14 @@ int getArgAndType(char* str, int len, int* val, char* type)
 		{
 			valFlag = true;
 			retval = argType_Register;
-			*val = reg_pc;
+			val->val = reg_pc;
 			i++;
 		}
 		if(!valFlag && str[i] == 's' && str[i+1] == 'p') // Found sp.
 		{
 			valFlag = true;
 			retval = argType_Register;
-			*val = reg_sp;
+			val->val = reg_sp;
 			i++;
 		}
 		
@@ -278,12 +301,12 @@ int getArgAndType(char* str, int len, int* val, char* type)
 		{
 			retval = argType_Register;
 			
-			if(sscanf(&str[i], "r%u", val) == 1) // Sets val to register number. reg_r0 will have value zero from enum, reg_r1 will have 1, and so on.
+			if(sscanf(&str[i], "r%u", &val->val) == 1) // Sets val to register number. reg_r0 will have value zero from enum, reg_r1 will have 1, and so on.
 				valFlag = true;
 			else
 				return argType_Bad;
 			
-			if(*val >= NUM_REGISTERS)
+			if(val->val >= NUM_REGISTERS)
 				return argType_Bad;
 			
 			for(i++; i<len && str[i] >= '0' && str[i] <= '9'; i++);
@@ -294,12 +317,12 @@ int getArgAndType(char* str, int len, int* val, char* type)
 		{
 			retval = argType_Immediate;
 			
-			if(sscanf(&str[i], "%u", val) == 1) // Sets val to the immediate value found.
+			if(sscanf(&str[i], "%u", &val->val) == 1) // Sets val to the immediate value found.
 				valFlag = true;
 			else
 				return argType_Bad;
 			
-			if(*val > 0xFFFF)
+			if(val->val > 0xFFFF)
 				return argType_Bad;
 			
 			for(i++; i<len && str[i] >= '0' && str[i] <= '9'; i++);

@@ -8,7 +8,7 @@
 #ifndef ASSEMBLER_H_
 #define ASSEMBLER_H_
 
-enum instArgType { argType_Unused, argType_Immediate, argType_DerefImmediate, argType_Register, argType_DerefRegister, argType_Label, argType_DerefLabel, argType_Bad };
+enum instArgType { argType_Bad, argType_Unused, argType_Immediate, argType_DerefImmediate, argType_Register, argType_DerefRegister, argType_Label, argType_DerefLabel };
 
 enum registers { reg_r0, reg_r1, reg_r2, reg_r3, NUM_REGISTERS, reg_pc, reg_sp, NUM_ALLREGISTERS, reg_immediate };
 
@@ -25,10 +25,16 @@ struct label
 	char* name;
 };
 
+union arg
+{
+	int val;
+	char* name;
+};
+
 struct instruction
 {
-	int arg1;
-	int arg2;
+	union arg arg1;
+	union arg arg2;
 	char instruction;
 	char type1;
 	char type2;
@@ -79,7 +85,7 @@ void resolveLabels(struct lineinfo* lines, int len);
 int findLabel(char* name, struct lineinfo* lines, int len);
 void assemble(struct lineinfo* lines, int len);
 int structify(char* source, struct lineinfo** lines);
-int getArgAndType(char* str, int len, int* val, char* type);
+int getArgAndType(char* str, int len, union arg* val, char* type);
 int getInstruction(char* str, int len);
 int getDirective(char* str, int len);
 void freeLineinfos(struct lineinfo* lines, int len);

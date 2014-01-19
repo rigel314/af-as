@@ -60,23 +60,23 @@ int main(int argc, char* argv[])
 						
 					case 1:
 						if(lines[i].line.inst.type1 == argType_Immediate || lines[i].line.inst.type1 == argType_DerefImmediate)
-							printf(" %s: %d", instructionSet[(int) lines[i].line.inst.instruction].mnumonic, lines[i].line.inst.arg1);
+							printf(" %s: %#.4x", instructionSet[(int) lines[i].line.inst.instruction].mnumonic, lines[i].line.inst.arg1.val);
 						else
-							printf(" %s: %s", instructionSet[(int) lines[i].line.inst.instruction].mnumonic, regStrings[(int) lines[i].line.inst.arg1].name);
+							printf(" %s: %s", instructionSet[(int) lines[i].line.inst.instruction].mnumonic, regStrings[ lines[i].line.inst.arg1.val].name);
 						break;
 						
 					case 2:
 						printf(" %s: ", instructionSet[(int) lines[i].line.inst.instruction].mnumonic);
 						
 						if(lines[i].line.inst.type1 == argType_Immediate || lines[i].line.inst.type1 == argType_DerefImmediate)
-							printf("%d, ", lines[i].line.inst.arg1);
+							printf("%#.4x, ", lines[i].line.inst.arg1.val);
 						else
-							printf("%s, ", regStrings[(int) lines[i].line.inst.arg1].name);
+							printf("%s, ", regStrings[lines[i].line.inst.arg1.val].name);
 						
 						if(lines[i].line.inst.type2 == argType_Immediate || lines[i].line.inst.type2 == argType_DerefImmediate)
-							printf("%d", lines[i].line.inst.arg2);
+							printf("%#.4x", lines[i].line.inst.arg2.val);
 						else
-							printf("%s", regStrings[(int) lines[i].line.inst.arg2].name);
+							printf("%s", regStrings[lines[i].line.inst.arg2.val].name);
 						break;
 				}
 			}
