@@ -31,7 +31,7 @@ $(TARGET_DIR)/$(out) : $(objects)
 	$(LD) $(options) $(objects) -o $@
 
 # Compile source
-$(OBJECT_DIR)/%.o : src/%.c
+$(OBJECT_DIR)/%.o : src/%.c src/*.h
 	$(CC) $(flags) -c $< -o $@
 
 # Clean up the build directories
