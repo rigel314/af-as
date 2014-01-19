@@ -181,10 +181,6 @@ int structify(char* source, struct lineinfo** lines)
 					case 2:
 						line[i].width = 2;
 						
-						printf(">>>%d\n", len);
-						strnprint(&source[pos], len);
-						printf(">>>\n");
-						
 						endOfFirstArg = strnchr(&source[pos], ',', len);
 						if(endOfFirstArg == NULL)
 							line[i].type = lineType_Error;
@@ -221,9 +217,6 @@ int getArgAndType(char* str, int len, int* val, char* type)
 	int retval = argType_Bad;
 	
 	*type = argType_Bad;
-	
-	strnprint(str, len);
-	printf("\n");
 	
 	for(int i=0; i<len; i++)
 	{
