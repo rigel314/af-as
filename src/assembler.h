@@ -10,31 +10,41 @@
 
 #include <stdbool.h>
 
+// Bit to set in register bitFeild to indicate derefrencing.
 #define TargetDerefBit 0x10
 
+// Argument types.
 enum instArgType { argType_Unused, argType_Bad, argType_Immediate, argType_DerefImmediate, argType_Register, argType_DerefRegister, argType_Label, argType_DerefLabel };
 
+// Internal values for registers.
 enum registers { reg_r0, reg_r1, reg_r2, reg_r3, NUM_REGISTERS, reg_pc, reg_sp, NUM_ALLREGISTERS, reg_immediate };
 
+// Line types.
 enum lineType { lineType_None, lineType_Instruction, lineType_Label, lineType_Byte, lineType_Error };
 
+// Internal values for directives.
 enum directive { directive_org, directive_equ, directive_db, directive_dw, directive_fill, directive_text, NUM_DIRECTIVES };
 
+// Internal values for instructions.
 enum instructions { inst_nop, inst_dd, inst_add, inst_sub, inst_mul, inst_div, inst_and, inst_or, inst_xor, inst_inc, inst_dec, inst_pop, inst_push, inst_shr, inst_shl, inst_shcr, inst_shcl, inst_ror, inst_rol, inst_rocr, inst_rocl, inst_halt, NUM_INSTRUCTIONS };
 
+// Restrictions on argument types.
 enum targetFlags { target_None, target_Register_Only, target_Immediate_Only, target_RegisterOrDeref, target_Any, target_Special };
 
+// Labels have a name.
 struct label
 {
 	char* name;
 };
 
+// An arg could be a value or a name.
 union arg
 {
 	int val;
 	char* name;
 };
 
+// An instruction can have up to two arguments and an instruction.
 struct instruction
 {
 	union arg arg1;
@@ -44,11 +54,13 @@ struct instruction
 	char type2;
 };
 
+// Byte can be one or more bytes. In the future, these will be created by various assembler directives.
 struct byte
 {
 	char* vals;
 };
 
+// A line could be a label, an instruction, or a byte.
 union line
 {
 	struct label lbl;
@@ -56,6 +68,7 @@ union line
 	struct byte byte;
 };
 
+// Every line has an address, number, width, type, and data.
 struct lineinfo
 {
 	union line line;
@@ -65,16 +78,18 @@ struct lineinfo
 	char type;
 };
 
+// Keeps information about the instruction set.
 struct instructionSetEntry
 {
-	char mnumonic[5];
-	char mnumonicLen;
+	char mnemonic[5];
+	char mnemonicLen;
 	char numArgs;
 	char flags1;
 	char flags2;
 	char bitField;
 };
 
+// Keeps information about the registers.
 struct validRegs
 {
 	char name[3];
