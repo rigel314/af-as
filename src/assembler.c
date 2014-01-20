@@ -172,6 +172,19 @@ void assemble(char* file, struct lineinfo* lines, int len)
 		fclose(fp);
 }
 
+bool isValidType(char type, char constraint)
+{
+	if(constraint == target_None && type != argType_Unused)
+		return false;
+	if(constraint == target_Register_Only && type != argType_Register)
+		return false;
+	if(constraint == target_Immediate_Only && type != argType_Immediate && type != argType_Label)
+		return false;
+	if(constraint == target_RegisterOrDeref && type != argType_DerefImmediate && type != argType_DerefLabel && type != argType_DerefRegister && type != argType_Register)
+		return false;
+	
+	return true;
+}
 
 int structify(char* source, struct lineinfo** lines)
 {
@@ -237,7 +250,7 @@ int structify(char* source, struct lineinfo** lines)
 					break;
 			}
 		}
-		else
+		else // Must be an instruction.
 		{
 			int cmdLen;
 			
@@ -271,6 +284,9 @@ int structify(char* source, struct lineinfo** lines)
 						if(getArgAndType(&source[pos+cmdLen], len-cmdLen-1, &line[i].line.inst.arg1, &line[i].line.inst.type1) == argType_Bad)
 							line[i].type = lineType_Error;
 						
+						if(!isValidType(line[i].line.inst.type1, instructionSet[(int) line[i].line.inst.instruction].flags1))
+							line[i].type = lineType_Error;
+						
 						if(line[i].line.inst.type1 == argType_DerefImmediate || line[i].line.inst.type1 == argType_Immediate)
 							line[i].width += 2;
 						break;
@@ -285,11 +301,17 @@ int structify(char* source, struct lineinfo** lines)
 						if(getArgAndType(&source[pos+cmdLen], endOfFirstArg-&source[pos+cmdLen], &line[i].line.inst.arg1, &line[i].line.inst.type1) == argType_Bad)
 							line[i].type = lineType_Error;
 						
+						if(!isValidType(line[i].line.inst.type1, instructionSet[(int) line[i].line.inst.instruction].flags1))
+							line[i].type = lineType_Error;
+						
 						if( line[i].line.inst.type1 == argType_DerefImmediate || line[i].line.inst.type1 == argType_Immediate ||
 							line[i].line.inst.type1 == argType_DerefLabel || line[i].line.inst.type1 == argType_Label)
 							line[i].width += 2;
 						
 						if(getArgAndType(endOfFirstArg+1, len-(int)(endOfFirstArg-&source[pos])-2, &line[i].line.inst.arg2, &line[i].line.inst.type2) == argType_Bad)
+							line[i].type = lineType_Error;
+						
+						if(!isValidType(line[i].line.inst.type2, instructionSet[(int) line[i].line.inst.instruction].flags2))
 							line[i].type = lineType_Error;
 						
 						if( line[i].line.inst.type2 == argType_DerefImmediate || line[i].line.inst.type2 == argType_Immediate ||

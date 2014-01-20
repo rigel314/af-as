@@ -8,6 +8,8 @@
 #ifndef ASSEMBLER_H_
 #define ASSEMBLER_H_
 
+#include <stdbool.h>
+
 #define TargetDerefBit 0x10
 
 enum instArgType { argType_Unused, argType_Bad, argType_Immediate, argType_DerefImmediate, argType_Register, argType_DerefRegister, argType_Label, argType_DerefLabel };
@@ -86,6 +88,7 @@ extern const struct validRegs regStrings[NUM_ALLREGISTERS+2];
 void resolveLabels(struct lineinfo* lines, int len);
 int findLabel(char* name, struct lineinfo* lines, int len);
 void assemble(char* file, struct lineinfo* lines, int len);
+bool isValidType(char type, char constraint);
 int structify(char* source, struct lineinfo** lines);
 int getArgAndType(char* str, int len, union arg* val, char* type);
 int getInstruction(char* str, int len);
