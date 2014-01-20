@@ -115,7 +115,7 @@ void assemble(char* file, struct lineinfo* lines, int len)
 		char target2 = -1;
 		
 		if(lines[i].type == lineType_Error)
-			fprintf(stderr, "Line %d - Error!", lines[i].lineNum);
+			fprintf(stderr, "Line %d - Error!\n", lines[i].lineNum);
 		if(lines[i].type != lineType_Instruction)
 			continue;
 		
