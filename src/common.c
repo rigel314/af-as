@@ -22,7 +22,7 @@ void writeInt8(FILE* fp, uint8_t val)
 }
 
 /**
- * void writeInt16(FILE* fp, uint8_t val)
+ * void writeInt16(FILE* fp, uint16_t val)
  * 	fp is the file stream to write to.
  * 	val is the value to write.
  * Writes 2 bytes to the stream.
@@ -30,6 +30,17 @@ void writeInt8(FILE* fp, uint8_t val)
 void writeInt16(FILE* fp, uint16_t val)
 {
 	fprintf(fp, "%c%c", (val & 0xFF00) >> 8, val & 0x00FF); // Big endian.
+}
+
+/**
+ * void writeInt32(FILE* fp, uint32_t val)
+ * 	fp is the file stream to write to.
+ * 	val is the value to write.
+ * Writes 4 bytes to the stream.
+ */
+void writeInt32(FILE* fp, uint32_t val)
+{
+	fprintf(fp, "%c%c%c%c", (val & 0xFF000000) >> 24, (val & 0x00FF0000) >> 16, (val & 0x0000FF00) >> 8, val & 0x000000FF); // Big endian.
 }
 
 /**

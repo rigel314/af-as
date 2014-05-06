@@ -19,6 +19,7 @@
 
 void writeInt8(FILE* fp, uint8_t val);
 void writeInt16(FILE* fp, uint16_t val);
+void writeInt32(FILE* fp, uint32_t val);
 void strnprint(char* str, int len);
 int strchrCount(char* s, char c);
 char* strnchr(char* s, char c, int len);

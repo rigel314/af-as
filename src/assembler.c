@@ -22,32 +22,39 @@
  * 	2. Add a new entry in the same place in the enumeration (instructions) in assembler.h.
  * The fields mean:
  * 	{"mnemonic", strlen(mnemonic), number of args, constraint for arg1, constraint for arg2, Opcode}
- * These opcodes are 6bits because the other 10 are split 5 each to describe each argument.
+ * These opcodes are 6bits.
  */
 const struct instructionSetEntry instructionSet[NUM_INSTRUCTIONS] =
 {
-	{"nop",  3, 0, target_None, target_None,			0b000000},
-	{"dd",   2, 2, target_Any, target_RegisterOrDeref,	0b000001},
-	{"add",  3, 2, target_RegisterOrDeref, target_Any,	0b000010},
-	{"sub",  3, 2, target_RegisterOrDeref, target_Any,	0b000011},
-	{"mul",  3, 2, target_RegisterOrDeref, target_Any,	0b000100},
-	{"div",  3, 2, target_RegisterOrDeref, target_Any,	0b000101},
-	{"and",  3, 2, target_RegisterOrDeref, target_Any,	0b000110},
-	{"or",   2, 2, target_RegisterOrDeref, target_Any,	0b000111},
-	{"xor",  3, 2, target_RegisterOrDeref, target_Any,	0b001000},
-	{"inc",  3, 1, target_RegisterOrDeref, target_None,	0b001001},
-	{"dec",  3, 1, target_RegisterOrDeref, target_None,	0b001010},
-	{"pop",  3, 1, target_RegisterOrDeref, target_None,	0b001011},
-	{"push", 4, 1, target_Any, target_None,				0b001100},
-	{"shr",  3, 1, target_Any, target_None,				0b001101},
-	{"shl",  3, 1, target_Any, target_None,				0b001110},
-	{"shcr", 4, 1, target_Any, target_None,				0b001111},
-	{"shcl", 4, 1, target_Any, target_None,				0b010000},
-	{"ror",  3, 1, target_Any, target_None,				0b010001},
-	{"rol",  3, 1, target_Any, target_None,				0b010010},
-	{"rocr", 4, 1, target_Any, target_None,				0b010011},
-	{"rocl", 4, 1, target_Any, target_None,				0b010100},
-	{"halt", 4, 0, target_None, target_None,			0b010101},
+	{"nop",  3, 0, 0, {0, 0, 0, 0},																0b00000000000000000000000000000000, 0b11111111111111111111111111111111},
+	{"halt", 4, 0, 0, {0, 0, 0, 0},																0b00000000000000000000000000000001, 0b11111111111111111111111111111111},
+	{"wai",  3, 0, 0, {0, 0, 0, 0},																0b00000000000000000000000000000010, 0b11111111111111111111111111111111},
+	{"dd",   2, 2, 0, {target_Any, target_RegisterOrDeref,0 ,0},								0b01000000000000000000000001000000, 0b11111100000000110000111111000000},
+	{"add",  3, 2, 1, {target_RegisterOrDeref, target_Any, target_Any, 0},						0b10100000000000000000000000000000, 0b11111000000000110000000000000000},
+	{"sub",  3, 2, 1, {target_RegisterOrDeref, target_Any, target_Any, 0},						0b10100000000000010000000000000000, 0b11111000000000110000000000000000},
+	{"adc",  3, 2, 1, {target_RegisterOrDeref, target_Any, target_Any, 0},						0b10100000000000100000000000000000, 0b11111000000000110000000000000000},
+	{"sbc",  3, 2, 1, {target_RegisterOrDeref, target_Any, target_Any, 0},						0b10100000000000110000000000000000, 0b11111000000000110000000000000000},
+	{"mul",  3, 2, 2, {target_RegisterOrDeref, target_RegisterOrDeref, target_Any, target_Any},	0b10000000000000000000000000000000, 0b11111000000000000000000000000000},
+	{"imul", 4, 2, 2, {target_RegisterOrDeref, target_RegisterOrDeref, target_Any, target_Any},	0b10001000000000000000000000000000, 0b11111000000000000000000000000000},
+	{"div",  3, 2, 2, {target_RegisterOrDeref, target_RegisterOrDeref, target_Any, target_Any},	0b10010000000000000000000000000000, 0b11111000000000000000000000000000},
+	{"idiv", 4, 2, 2, {target_RegisterOrDeref, target_RegisterOrDeref, target_Any, target_Any},	0b10011000000000000000000000000000, 0b11111000000000000000000000000000},
+	{"and",  3, 2, 1, {target_RegisterOrDeref, target_Any, target_Any, 0},						0b10101000000000000000000000000000, 0b11111000000000110000000000000000},
+	{"or",   2, 2, 1, {target_RegisterOrDeref, target_Any, target_Any, 0},						0b10101000000000010000000000000000, 0b11111000000000110000000000000000},
+	{"xor",  3, 2, 1, {target_RegisterOrDeref, target_Any, target_Any, 0},						0b10101000000000100000000000000000, 0b11111000000000110000000000000000},
+	{"inc",  3, 1, 0, {target_RegisterOrDeref, 0, 0, 0},										0b10111000000000110000000000000000, 0b11111000000000110000111111111111},
+	{"dec",  3, 1, 0, {target_RegisterOrDeref, 0, 0, 0},										0b10111000000000110000000000000001, 0b11111000000000110000111111111111},
+	{"pop",  3, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b01000000000000000000000010000000, 0b11111100000000110000111111000000},
+	{"push", 4, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b01000000000000000000000011000000, 0b11111100000000110000111111000000},
+	{"shr",  3, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b10101000000000110000000000000000, 0b11111000000000110000111111000000},
+	{"shl",  3, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b10101000000000110000000001000000, 0b11111000000000110000111111000000},
+	{"ishr", 4, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b10101000000000110000000010000000, 0b11111000000000110000111111000000},
+	{"ishl", 4, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b10101000000000110000000011000000, 0b11111000000000110000111111000000},
+	{"ror",  3, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b10101000000000110000000100000000, 0b11111000000000110000111111000000},
+	{"rol",  3, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b10101000000000110000000101000000, 0b11111000000000110000111111000000},
+	{"rrc",  3, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b10101000000000110000000110000000, 0b11111000000000110000111111000000},
+	{"rlc",  3, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b10101000000000110000000111000000, 0b11111000000000110000111111000000},
+	{"call", 4, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b00100000000000000000000000000000, 0b11111100000000110000111111000000},
+	{"bcda", 4, 1, 1, {target_RegisterOrDeref, target_Any, 0, 0},								0b10101000000000110000001000000000, 0b11111000000000110000111111000000},
 };
 
 /**
@@ -57,19 +64,59 @@ const struct instructionSetEntry instructionSet[NUM_INSTRUCTIONS] =
  * 	2. Add a new entry in the same place in the enumeration (registers) in assembler.h.
  * The fields mean:
  * 	{"regName", strlen(regName), Opcode}
- * These opcodes are 5bits because the high bit signifies that it should be dereferenced.
+ * These opcodes are 6bits because the high bit signifies that it should be dereferenced.
  */
 const struct validRegs regStrings[NUM_ALLREGISTERS+2] =
 {
-	{"r0", 2, 0b00000},
-	{"r1", 2, 0b00001},
-	{"r2", 2, 0b00010},
-	{"r3", 2, 0b00011},
+	{"r0", 2, 0b000001},
+	{"r1", 2, 0b000010},
+	{"r2", 2, 0b000011},
+	{"r3", 2, 0b000100},
+	{"r4", 2, 0b000101},
+	{"r5", 2, 0b000110},
+	{"r6", 2, 0b000111},
+	{"r7", 2, 0b001000},
+	{"r8", 2, 0b001001},
+	{"r9", 2, 0b001010},
 	{"", 0, 0},
-	{"pc", 2, 0b01101},
-	{"sp", 2, 0b01110},
+	{"pc", 2, 0b011100},
+	{"sp", 2, 0b011101},
+	{"fl", 2, 0b011110},
 	{"", 0, 0},
-	{"",   0, 0b01111} // Signifies immediate value.
+	{"",   0, 0b011111} // Signifies immediate value.
+};
+
+/**
+ * This lists the conditions that this assembler understands.
+ * To add a new one:
+ * 	1. Add a new entry below.
+ * 	2. Add a new entry in the same place in the enumeration (registers) in assembler.h.
+ * The fields mean:
+ * 	{"condName", strlen(condName), Opcode}
+ * These opcodes are 4bits.
+ */
+const struct validRegs condStrings[NUM_CONDITIONS] =
+{
+	{"al", 2, 0b00000},
+	{"nv", 2, 0b00001},
+	{"z",  1, 0b00010},
+	{"nz", 2, 0b00011},
+	{"c",  1, 0b00100},
+	{"nc", 2, 0b00101},
+	{"v",  1, 0b00110},
+	{"nv", 2, 0b00111},
+	{"n",  1, 0b01000},
+	{"nn", 2, 0b01001},
+	{"ge", 2, 0b01010},
+	{"gt", 2, 0b01011},
+	{"le", 2, 0b01100},
+	{"lt", 2, 0b01101},
+	{"hs", 2, 0b01110},
+	{"hi", 2, 0b01111},
+	{"ls", 2, 0b00000}, // TODO: Look this up.
+	{"lo", 2, 0b00000}, // TODO: Look this up.
+	{"eq", 2, 0b00010},
+	{"ne", 2, 0b00011},
 };
 
 /**
@@ -85,31 +132,20 @@ void resolveLabels(struct lineinfo* lines, int len)
 		if(lines[i].type != lineType_Instruction) // The only thing that matters is instructions at this point.
 			continue;
 		
-		if(lines[i].line.inst.type1 == argType_Label || lines[i].line.inst.type1 == argType_DerefLabel)
-		{ // If the first argument is a label
-			char* arglbl = lines[i].line.inst.arg1.name; // Backup the name so it can be free()ed later.
-			
-			// Set the type correct.  Deref types are always (non-deref type ORed with 0x01).  argType_Deref(.*) == (argType_\1 | 1)
-			lines[i].line.inst.type1 = argType_Immediate | (0x01 & lines[i].line.inst.type1); // enum order: instArgType
-			lines[i].line.inst.arg1.val = findLabel(arglbl, lines, len);
-			
-			free(arglbl);
-			
-			if(lines[i].line.inst.arg1.val == -1) // If findLabel didn't find anything, signal an error.
-				lines[i].type = lineType_Error;
-		}
-		if(lines[i].line.inst.type2 == argType_Label || lines[i].line.inst.type2 == argType_DerefLabel)
-		{ // If the second argument is a label
-			char* arglbl = lines[i].line.inst.arg1.name;
-			
-			lines[i].line.inst.type2 = argType_Immediate | (0x01 & lines[i].line.inst.type2); // enum order: instArgType
-			lines[i].line.inst.arg2.val = findLabel(lines[i].line.inst.arg2.name, lines, len);
-			
-			free(arglbl);
-			
-			if(lines[i].line.inst.arg2.val == -1)
-				lines[i].type = lineType_Error;
-		}
+		for(int j=0; j<4; j++)
+			if(lines[i].line.inst.types[j] == argType_Label || lines[i].line.inst.types[j] == argType_DerefLabel)
+			{ // If the first argument is a label
+				char* arglbl = lines[i].line.inst.args[j].name; // Backup the name so it can be free()ed later.
+				
+				// Set the type correct.  Deref types are always (non-deref type ORed with 0x01).  argType_Deref(.*) == (argType_\1 | 1)
+				lines[i].line.inst.types[j] = argType_Immediate | (0x01 & lines[i].line.inst.types[j]); // enum order: instArgType
+				lines[i].line.inst.args[j].val = findLabel(arglbl, lines, len);
+				
+				free(arglbl);
+				
+				if(lines[i].line.inst.args[j].val == -1) // If findLabel didn't find anything, signal an error.
+					lines[i].type = lineType_Error;
+			}
 	}
 }
 
@@ -150,17 +186,15 @@ void assemble(char* file, struct lineinfo* lines, int len)
 	for(int i=0; i<len; i++)
 	{
 		int inst;
-		uint16_t word = 0;
-		char target1 = -1;
-		char target2 = -1;
+		uint32_t word = 0;
 		
 		if(lines[i].type == lineType_Error) // If there was an error, print it.
 			fprintf(stderr, "Line %d - Error!\n", lines[i].lineNum);
 		if(lines[i].type != lineType_Instruction) // Instructions are the only other important line type.
-			continue;
+			continue;							  // Byte lines are important too, but there's no way to generate them. '.db' and '.dw' are not implemented.
 		
-		if(!addr) // Don't write extra bytes for first address.
-			addr = lines[i].address;
+//		if(!addr) // Don't write extra bytes for first address.
+//			addr = lines[i].address;
 		if(addr != lines[i].address)
 		{ // If there was a .org directive that changed the address, write a bunch of zeroes.
 			for(; addr<lines[i].address; addr++)
@@ -170,43 +204,122 @@ void assemble(char* file, struct lineinfo* lines, int len)
 		
 		inst = lines[i].line.inst.instruction; // Simplify some array indexing.
 		
-		word = instructionSet[inst].bitField << 10; // Shift the opcode for the mnemonic to the right place.
-		if(lines[i].line.inst.type1 == argType_DerefRegister || lines[i].line.inst.type1 == argType_Register)
-		{ // If there's a register, shift the register opcode to the right places.
-			target1 = regStrings[lines[i].line.inst.arg1.val].bitField;
-			if(lines[i].line.inst.type1 == argType_DerefRegister)
-				target1 |= TargetDerefBit; // Get the deref bit set properly.
-			word |= (target1 << 5);
-		}
-		else if(lines[i].line.inst.type1 == argType_DerefImmediate || lines[i].line.inst.type1 == argType_Immediate)
-		{ // Do the same for immediate values.
-			target1 = regStrings[reg_immediate].bitField;
-			if(lines[i].line.inst.type1 == argType_DerefImmediate)
-				target1 |= TargetDerefBit;
-			word |= (target1 << 5);
-		}
-		if(lines[i].line.inst.type2 == argType_DerefRegister || lines[i].line.inst.type2 == argType_Register)
-		{ // Same for the second arg.
-			target2 = regStrings[lines[i].line.inst.arg2.val].bitField;
-			if(lines[i].line.inst.type2 == argType_DerefRegister)
-				target2 |= TargetDerefBit;
-			word |= target2;
-		}
-		else if(lines[i].line.inst.type2 == argType_DerefImmediate || lines[i].line.inst.type2 == argType_Immediate)
-		{ // Same for the second arg.
-			target2 = regStrings[reg_immediate].bitField;
-			if(lines[i].line.inst.type2 == argType_DerefImmediate)
-				target2 |= TargetDerefBit;
-			word |= target2;
+		word = instructionSet[inst].bitField;
+		
+		// Or the targets into place.
+		for(int j=0; j < lines[i].line.inst.numArgsUsed; j++)
+		{
+			int shift = 0;
+			switch(j)
+			{
+				case 0:
+					if(lines[i].line.inst.numArgsUsed == 2)
+						shift = 6;
+					if(lines[i].line.inst.numArgsUsed > 2)
+						shift = 18;
+					break;
+				
+				case 1:
+					if(lines[i].line.inst.numArgsUsed < 4)
+						shift = 6;
+					if(lines[i].line.inst.numArgsUsed == 4)
+						shift = 12;
+					break;
+				
+				case 2:
+					if(lines[i].line.inst.numArgsUsed == 4)
+						shift = 6;
+					break;
+			}
+			
+			if(lines[i].line.inst.types[j] == argType_DerefRegister || lines[i].line.inst.types[j] == argType_Register)
+			{
+				int extrabit = 0;
+				
+				if(lines[i].line.inst.types[j] == argType_DerefRegister)
+					extrabit = TargetDerefBit;
+				word |= (condStrings[lines[i].line.inst.args[j].val].bitField | extrabit) << shift;
+			}
+			else if(lines[i].line.inst.types[j] == argType_DerefImmediate || lines[i].line.inst.types[j] == argType_Immediate)
+			{
+				int extrabit = 0;
+				
+				if(lines[i].line.inst.types[j] == argType_DerefImmediate)
+					extrabit = TargetDerefBit;
+				word |= (condStrings[reg_immediate].bitField | extrabit) << shift;
+			}
 		}
 		
-		writeInt16(fp, word); // Write the instruction.
+		// Or the 'mutate flags' flag into place;
+		if(!(instructionSet[inst].bitMask & 0b00000100000000000000000000000000) && !lines[i].line.inst.mutateFlags)
+			word |= 0b00000100000000000000000000000000;
 		
-		// Write the bytes for immediate values.
-		if((target1 | TargetDerefBit) == (regStrings[reg_immediate].bitField | TargetDerefBit))
-			writeInt16(fp, lines[i].line.inst.arg1.val);
-		if((target2 | TargetDerefBit) == (regStrings[reg_immediate].bitField | TargetDerefBit))
-			writeInt16(fp, lines[i].line.inst.arg1.val);
+		// Or the conditions into place.
+		if(!(instructionSet[inst].bitMask & 0b00000000000000001111000000000000) && inst < inst_mul && inst > inst_idiv)
+			word |= condStrings[lines[i].line.inst.condition].bitField << 12;
+		
+		// TODO: implement relative call and bitwise arg notting.
+		
+		writeInt32(fp, word); // Write the instruction.
+		
+		// Write bytes for immediate values.
+		for(int j=0; j < lines[i].line.inst.numArgsUsed; j++)
+		{
+			if(lines[i].line.inst.types[j] == argType_Immediate)
+				switch(lines[i].line.inst.width)
+				{
+					case instWidth_8:
+						writeInt8(fp, lines[i].line.inst.args[j].val & 0xFF);
+						break;
+						
+					case instWidth_16:
+						writeInt16(fp, lines[i].line.inst.args[j].val & 0xFFFF);
+						break;
+						
+					case instWidth_32:
+						writeInt32(fp, lines[i].line.inst.args[j].val & 0xFFFFFFFF);
+						break;
+				}
+			if(lines[i].line.inst.types[j] == argType_DerefImmediate)
+				writeInt32(fp, lines[i].line.inst.args[j].val);
+		}
+		
+//		if(lines[i].line.inst.type1 == argType_DerefRegister || lines[i].line.inst.type1 == argType_Register)
+//		{ // If there's a register, shift the register opcode to the right places.
+//			target1 = regStrings[lines[i].line.inst.arg1.val].bitField;
+//			if(lines[i].line.inst.type1 == argType_DerefRegister)
+//				target1 |= TargetDerefBit; // Get the deref bit set properly.
+//			word |= (target1 << 5);
+//		}
+//		else if(lines[i].line.inst.type1 == argType_DerefImmediate || lines[i].line.inst.type1 == argType_Immediate)
+//		{ // Do the same for immediate values.
+//			target1 = regStrings[reg_immediate].bitField;
+//			if(lines[i].line.inst.type1 == argType_DerefImmediate)
+//				target1 |= TargetDerefBit;
+//			word |= (target1 << 5);
+//		}
+//		if(lines[i].line.inst.type2 == argType_DerefRegister || lines[i].line.inst.type2 == argType_Register)
+//		{ // Same for the second arg.
+//			target2 = regStrings[lines[i].line.inst.arg2.val].bitField;
+//			if(lines[i].line.inst.type2 == argType_DerefRegister)
+//				target2 |= TargetDerefBit;
+//			word |= target2;
+//		}
+//		else if(lines[i].line.inst.type2 == argType_DerefImmediate || lines[i].line.inst.type2 == argType_Immediate)
+//		{ // Same for the second arg.
+//			target2 = regStrings[reg_immediate].bitField;
+//			if(lines[i].line.inst.type2 == argType_DerefImmediate)
+//				target2 |= TargetDerefBit;
+//			word |= target2;
+//		}
+//		
+//		writeInt16(fp, word); // Write the instruction.
+//		
+//		// Write the bytes for immediate values.
+//		if((target1 | TargetDerefBit) == (regStrings[reg_immediate].bitField | TargetDerefBit))
+//			writeInt16(fp, lines[i].line.inst.arg1.val);
+//		if((target2 | TargetDerefBit) == (regStrings[reg_immediate].bitField | TargetDerefBit))
+//			writeInt16(fp, lines[i].line.inst.arg1.val);
 	}
 	
 	if(fp != stdout) // Keep everything clean.
@@ -307,11 +420,15 @@ int structify(char* source, struct lineinfo** lines)
 		}
 		else // Must be an instruction.
 		{
-			int cmdLen;
-			
 			line[i].type = lineType_Instruction;
+			line[i].line.inst.mutateFlags = true;
+			line[i].line.inst.condition = cond_always;
+			line[i].line.inst.width = instWidth_32;
+			for(int j=0; j<4; j++)
+				line[i].line.inst.types[j] = argType_Unused;
 			
 			line[i].line.inst.instruction = getInstruction(&source[pos], len);
+			
 			if(line[i].line.inst.instruction == NUM_INSTRUCTIONS)
 			{ // Instruction not found.
 				line[i].width = 0;
@@ -319,67 +436,109 @@ int structify(char* source, struct lineinfo** lines)
 			}
 			else
 			{
+				int cmdLen;
+				int j = 0;
+				char* endOfPrevArg = NULL;
+				char* endOfThisArg = strnchr(&source[pos], ',', len);
+				int argLength = 0;
+				
+				
+				// Getting flags, conditions, and width.
 				cmdLen = instructionSet[(int) line[i].line.inst.instruction].mnemonicLen;
 				
-				switch(instructionSet[(int) line[i].line.inst.instruction].numArgs)
+				if(source[pos] == '!')
 				{
-					char* endOfFirstArg;
+					cmdLen++;
+					line[i].line.inst.mutateFlags = false;
+				}
+				if(source[pos+cmdLen] == '{')
+				{
+					int cond = getCondition(&source[pos+cmdLen+1], len-cmdLen-1);
+					if(cond == NUM_CONDITIONS)
+					{
+						line[i].type = lineType_Error;
+					}
+					else
+					{
+						line[i].line.inst.condition = cond;
+						cmdLen += condStrings[cond].len + 1;
+					}
 					
-					case 0: // No args, always 2 bytes wide.
-						line[i].width = 2;
-						line[i].line.inst.type1 = argType_Unused;
-						line[i].line.inst.type2 = argType_Unused;
-						break;
+					if(source[pos+cmdLen] != '}')
+					{
+						line[i].type = lineType_Error;
+						cmdLen -= 1;
+					}
+					else
+					{
+						cmdLen++;
+					}
+				}
+				if(source[pos+cmdLen] == '.')
+				{
+					int wid = getDataWidth(&source[pos+cmdLen+1], len-cmdLen-1);
+					if(wid != instWidth_8 && wid != instWidth_16 && wid != instWidth_32)
+					{
+						line[i].type = lineType_Error;
+					}
+					else
+					{
+						line[i].line.inst.width = wid;
+						cmdLen += ((wid==instWidth_8)? 2 : 3);
+					}
+				}
+				
+				// Getting instruction arguments.
+				endOfPrevArg = &source[pos+cmdLen];
+				
+				if(endOfThisArg == NULL)
+					argLength = len-cmdLen-1;
+				else
+					argLength = endOfThisArg - endOfPrevArg;
+				
+				// Some complicated magic to get an input file parsed properly.
+				while(getArgAndType(endOfPrevArg+1, argLength-1, &line[i].line.inst.args[j], &line[i].line.inst.types[j]) != argType_Bad && ++j<4 && endOfThisArg != NULL)
+				{
+					endOfPrevArg = endOfThisArg;
 					
-					case 1: // 1 arg, 2 bytes wide plus optional extra 2 bytes for an immediate value.
-						line[i].width = 2;
-						
-						line[i].line.inst.type2 = argType_Unused;
-						
-						// Bad args are errors.
-						if(getArgAndType(&source[pos+cmdLen], len-cmdLen-1, &line[i].line.inst.arg1, &line[i].line.inst.type1) == argType_Bad)
-							line[i].type = lineType_Error;
-						
-						// Unsatified constraints are errors.
-						if(!isValidType(line[i].line.inst.type1, instructionSet[(int) line[i].line.inst.instruction].flags1))
-							line[i].type = lineType_Error;
-						
-						if( line[i].line.inst.type1 == argType_DerefImmediate || line[i].line.inst.type1 == argType_Immediate ||
-							line[i].line.inst.type1 == argType_DerefLabel || line[i].line.inst.type1 == argType_Label)
-							line[i].width += 2;
-						break;
-					
-					case 2: // 2 args, 2 bytes wide plus optional extra 2 bytes for immediate values.
-						line[i].width = 2;
-						
-						endOfFirstArg = strnchr(&source[pos], ',', len);
-						if(endOfFirstArg == NULL)
-							line[i].type = lineType_Error;
-						
-						// Bad args are errors.
-						if(getArgAndType(&source[pos+cmdLen], endOfFirstArg-&source[pos+cmdLen], &line[i].line.inst.arg1, &line[i].line.inst.type1) == argType_Bad)
-							line[i].type = lineType_Error;
-						
-						// Unsatified constraints are errors.
-						if(!isValidType(line[i].line.inst.type1, instructionSet[(int) line[i].line.inst.instruction].flags1))
-							line[i].type = lineType_Error;
-						
-						if( line[i].line.inst.type1 == argType_DerefImmediate || line[i].line.inst.type1 == argType_Immediate ||
-							line[i].line.inst.type1 == argType_DerefLabel || line[i].line.inst.type1 == argType_Label)
-							line[i].width += 2;
-						
-						// Bad args are errors.
-						if(getArgAndType(endOfFirstArg+1, len-(int)(endOfFirstArg-&source[pos])-2, &line[i].line.inst.arg2, &line[i].line.inst.type2) == argType_Bad)
-							line[i].type = lineType_Error;
-						
-						// Unsatified constraints are errors.
-						if(!isValidType(line[i].line.inst.type2, instructionSet[(int) line[i].line.inst.instruction].flags2))
-							line[i].type = lineType_Error;
-						
-						if( line[i].line.inst.type2 == argType_DerefImmediate || line[i].line.inst.type2 == argType_Immediate ||
-							line[i].line.inst.type2 == argType_DerefLabel || line[i].line.inst.type2 == argType_Label)
-							line[i].width += 2;
-						break;
+					endOfThisArg = strnchr(endOfPrevArg+1, ',', argLength-1);
+					if(endOfThisArg == NULL)
+						argLength = len - (endOfPrevArg-&source[pos]) - 1;
+					else
+						argLength = endOfThisArg - endOfPrevArg;
+				}
+				
+				if(j < instructionSet[(int) line[i].line.inst.instruction].numArgs)
+					line[i].type = lineType_Error;
+				if(j > instructionSet[(int) line[i].line.inst.instruction].numArgs + instructionSet[(int) line[i].line.inst.instruction].numOptArgs)
+					line[i].type = lineType_Error;
+				
+				line[i].line.inst.numArgsUsed = j;
+				
+				// Argument type checking.
+				for(int k=0; k<j; k++)
+					if(!isValidType(line[i].line.inst.types[k], instructionSet[(int) line[i].line.inst.instruction].argFlags[k]))
+						line[i].type = lineType_Error;
+				
+				line[i].width = 4;
+				
+				for(int j=0; j<4; j++)
+				{
+					if((line[i].line.inst.types[j]) == argType_Immediate || (line[i].line.inst.types[j]) == argType_Label)
+						switch(line[i].line.inst.width)
+						{
+							case instWidth_8:
+								line[i].width += 1;
+								break;
+							case instWidth_16:
+								line[i].width += 2;
+								break;
+							case instWidth_32:
+								line[i].width += 4;
+								break;
+						}
+					if((line[i].line.inst.types[j]) == argType_DerefImmediate || (line[i].line.inst.types[j]) == argType_DerefLabel)
+						line[i].width += 4;
 				}
 			}
 			addr += line[i].width; // Always increment addr by instruction width.
@@ -471,6 +630,13 @@ int getArgAndType(char* str, int len, union arg* val, char* type)
 			val->val = reg_sp;
 			i++;
 		}
+		if(!valFlag && str[i] == 'f' && str[i+1] == 'l') // Found fl.
+		{
+			valFlag = true;
+			retval = argType_Register;
+			val->val = reg_fl;
+			i++;
+		}
 		
 		// Numbered registers.
 		if(!valFlag && str[i] == 'r') // Found a register.
@@ -528,10 +694,55 @@ int getInstruction(char* str, int len)
 {
 	int i = 0;
 	
+	if(str[0] == '!')
+		str++;
+	
 	// Iterate through the instruction set looking for matches.
 	while(strncasecmp(str, instructionSet[i].mnemonic, instructionSet[i].mnemonicLen) && ++i < NUM_INSTRUCTIONS);
 	
 	return i;
+}
+
+/**
+ * int getInstruction(char* str, int len)
+ * 	str is the string to check.
+ * 	len is the farthest to index str.
+ * Returns the detected condition in str. Returns NUM_CONDITIONS on error.
+ */
+int getCondition(char* str, int len)
+{
+	int i = 0;
+	
+	// Iterate through the valid conditions looking for matches.
+	while(strncasecmp(str, condStrings[i].name, condStrings[i].len) && ++i < NUM_INSTRUCTIONS);
+	
+	return i;
+}
+
+/**
+ * int getInstruction(char* str, int len)
+ * 	str is the string to check.
+ * 	len is the farthest to index str.
+ * Returns the detected condition in str. Returns NUM_CONDITIONS on error.
+ */
+int getDataWidth(char* str, int len)
+{
+	switch(str[0])
+	{
+		case '8':
+			return instWidth_8;
+			break;
+		case '1':
+			if(str[1] == '6')
+				return instWidth_16;
+			break;
+		case '3':
+			if(str[1] == '2')
+				return instWidth_32;
+			break;
+	}
+
+	return 0;
 }
 
 /**

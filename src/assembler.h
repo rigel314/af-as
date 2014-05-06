@@ -9,15 +9,17 @@
 #define ASSEMBLER_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 
 // Bit to set in register bitFeild to indicate derefrencing.
-#define TargetDerefBit 0x10
+#define TargetDerefBit 0x20
 
 // Argument types.
+// The order of this enum is important.  lines with 'enum order' comments signify which lines rely on this order.
 enum instArgType { argType_Unused, argType_Bad, argType_Immediate, argType_DerefImmediate, argType_Register, argType_DerefRegister, argType_Label, argType_DerefLabel };
 
 // Internal values for registers.
-enum registers { reg_r0, reg_r1, reg_r2, reg_r3, NUM_REGISTERS, reg_pc, reg_sp, NUM_ALLREGISTERS, reg_immediate };
+enum registers { reg_r0, reg_r1, reg_r2, reg_r3, reg_r4, reg_r5, reg_r6, reg_r7, reg_r8, reg_r9, NUM_REGISTERS, reg_pc, reg_sp, reg_fl, NUM_ALLREGISTERS, reg_immediate };
 
 // Line types.
 enum lineType { lineType_None, lineType_Instruction, lineType_Label, lineType_Byte, lineType_Error };
@@ -26,10 +28,16 @@ enum lineType { lineType_None, lineType_Instruction, lineType_Label, lineType_By
 enum directive { directive_org, directive_equ, directive_db, directive_dw, directive_fill, directive_text, NUM_DIRECTIVES };
 
 // Internal values for instructions.
-enum instructions { inst_nop, inst_dd, inst_add, inst_sub, inst_mul, inst_div, inst_and, inst_or, inst_xor, inst_inc, inst_dec, inst_pop, inst_push, inst_shr, inst_shl, inst_shcr, inst_shcl, inst_ror, inst_rol, inst_rocr, inst_rocl, inst_halt, NUM_INSTRUCTIONS };
+enum instructions { inst_nop, inst_halt, inst_wai, inst_dd, inst_add, inst_adc, inst_sub, inst_sbc, inst_mul, inst_imul, inst_div, inst_idiv, inst_and, inst_or, inst_xor, inst_inc, inst_dec, inst_pop, inst_push, inst_shr, inst_shl, inst_ishr, inst_ishl, inst_ror, inst_rol, inst_rrc, inst_rlc, inst_call, inst_bcda, NUM_INSTRUCTIONS };
 
 // Restrictions on argument types.
 enum targetFlags { target_None, target_Register_Only, target_Immediate_Only, target_RegisterOrDeref, target_Any, target_Special };
+
+// Allowed conditions.
+enum conditions { cond_always, cond_never, cond_zero, cond_notZero, cond_carry, cond_notCarry, cond_overflow, cond_notOverflow, cond_negative, cond_notNeg, cond_greatEq, cond_greater, cond_lessEq, cond_less, cond_highEq, cond_higher, cond_lowEq, cond_lower, cond_equal, cond_notEq, NUM_CONDITIONS };
+
+// Allowed data bus widths for instructions.
+enum allowedWidths { instWidth_32, instWidth_16, instWidth_8 };
 
 // Labels have a name.
 struct label
@@ -40,24 +48,30 @@ struct label
 // An arg could be a value or a name.
 union arg
 {
-	int val;
+	uint32_t val;
 	char* name;
 };
 
-// An instruction can have up to two arguments and an instruction.
+// An instruction can have up to four arguments and its value.
+// It also can execute only on a specific condition.
+// It also can optionally not mutate flags.
+// It also can optionally be 8, 16, or 32 bits. (as far as data reads and writes)
 struct instruction
 {
-	union arg arg1;
-	union arg arg2;
-	char instruction;
-	char type1;
-	char type2;
+	union arg args[4];
+	int condition;
+	char width;
+	bool mutateFlags;
+	char numArgsUsed;
+	char instruction; // This is the actual instruction from the enum instructions.
+	char types[4];
 };
 
 // Byte can be one or more bytes. In the future, these will be created by various assembler directives.
 struct byte
 {
 	char* vals;
+	int length;
 };
 
 // A line could be a label, an instruction, or a byte.
@@ -84,13 +98,22 @@ struct instructionSetEntry
 	char mnemonic[5];
 	char mnemonicLen;
 	char numArgs;
-	char flags1;
-	char flags2;
-	char bitField;
+	char numOptArgs;
+	char argFlags[4];
+	uint32_t bitField;
+	uint32_t bitMask;
 };
 
 // Keeps information about the registers.
 struct validRegs
+{
+	char name[4];
+	char len;
+	char bitField;
+};
+
+// Keeps information about the conditions.
+struct validCondidions
 {
 	char name[3];
 	char len;
@@ -107,6 +130,8 @@ bool isValidType(char type, char constraint);
 int structify(char* source, struct lineinfo** lines);
 int getArgAndType(char* str, int len, union arg* val, char* type);
 int getInstruction(char* str, int len);
+int getCondition(char* str, int len);
+int getDataWidth(char* str, int len);
 int getDirective(char* str, int len);
 void freeLineinfos(struct lineinfo* lines, int len);
 

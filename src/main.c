@@ -5,7 +5,6 @@
  *      Author: cody
  *
  *	TODO:
- *		Check for garbage on zero arg lines.
  *		Check for garbage and invalid characters on label lines.
  *		Detect .org less than current address.
  *		Add way more directives.
@@ -18,6 +17,7 @@
  *				hex
  *				srec
  *				bin
+ *				ELF?
  *		Handle multiple files?
  */
 
